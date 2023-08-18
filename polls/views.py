@@ -4,13 +4,17 @@ from .serializers import YangilikSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.status import HTTP_201_CREATED
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 
 
-class AllYangilikView(APIView):
-    def get(self, request, *args, **kwargs):
-        all_yangilik = YangilikModels.objects.all()
-        serializer = YangilikSerializer(all_yangilik, many=True)
-        return Response(serializer.data)
+class AllYangilikView(generics.ListAPIView):
+    queryset = YangilikModels.objects.all()
+    serializer_class = YangilikSerializer
+    permission_classes = (IsAuthenticated,)
+    def get_queryset(self):
+        user=self.request.user
+        return YangilikModels.objects.filter(user=user)
 
 
 class DetailYangilikView(APIView):
